@@ -1,0 +1,66 @@
+#!/usr/bin/perl
+use strict;
+require "todo_lib.pl";
+
+#
+=Notes
+Possibilities: 
+Connect
+LoginOK
+LoginFail
+ViewList
+Add to list
+Delete from list
+Logout
+=
+
+sub connect {
+# Expects: 
+# Returns: 
+
+}
+
+sub loginOK {
+# Expects: 
+# Returns: 
+
+}
+
+sub loginFail {
+# Expects: 
+# Returns: 
+
+}
+
+sub viewList {
+# Expects: 
+# Returns: 
+
+}
+
+sub createNew {
+# Expects: 
+# Returns: 
+
+}
+
+sub addToList {
+# Expects: 
+# Returns: 
+
+}
+
+sub deleteFromList {
+# Expects: 
+# Returns: 
+
+}
+
+sub logout {
+# Expects: 
+# Returns: 
+
+}
+
+contentType();
+print "Hello World.\n";
