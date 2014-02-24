@@ -1,7 +1,1 @@
-#!/usr/bin/perl
-
-# requires mode 755
-
-use strict;
-print "Content-type: text/html\n\n";
-print "Hello World.<br>";
+test 1 11:45 am cianod
