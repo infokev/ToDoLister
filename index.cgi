@@ -212,7 +212,7 @@ sub logOut {
   my $result=$qh->execute();
   if ($result == 1) {
   
-
+# printing HTML
   print "<!DOCTYPE html><html><head><title>Treebeard To-Do-Lister</title>";
   print "<style>";
     
