@@ -532,7 +532,6 @@ sub stampSession {
 sub createNew {
 # Expects: 
 # Returns: 
-  my ( $table, $entable, $tabrow, $entabrow, $tabd, $entabd);
   my $tempVar=msg_saveItem;
   my $sessionID=getSessionCode();
   print <<createNew;
@@ -554,7 +553,7 @@ sub createNew {
   </table>
   <tr><td><b>Add a Task To the List:</b></td>
   <td><select name=\"Priority\" placeholder="priority"  maxlength="60" style="width:146px; border:1px solid #999999" /> 
-  <option name= > Priority
+  <option name=\" \"> Priority
   <option value=\"High\">High
   <option value=\"Medium\">Medium
   <option value=\"Small\">Small
