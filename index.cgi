@@ -64,7 +64,7 @@ use constant msg_createNew=>103;
 use constant msg_loginFail=>104;
 use constant msg_logOut => 105;
 use constant msg_signUp => 106;
-use constant msg_editList=>107;
+use constant msg_editThing=>107;
 use constant msg_deleteFromList=>108;
 use constant msg_saveItem => 109;
 
@@ -262,7 +262,7 @@ sub viewList {
   my $doing=msg_viewList;
   my $msg_logOut=msg_logOut;
   my $msg_createNew=msg_createNew;
-  my $msg_editList=msg_editList;
+  my $msg_editThing=msg_editThing;
   my $msg_deleteFromList=msg_deleteFromList;
   my $listEntries;#=getList(); #$activeUser, $sessionCode);
   my $html=<<viewList_html1;
@@ -293,7 +293,7 @@ viewList_html1
   <li><a href="?act=$msg_logOut&amp;id=$sessionCode">Log Out</a></li>
   <li><a href="?act=$msg_createNew&amp;id=$sessionCode">Add a new Task</a></li>
   <li><a href="?act=$msg_deleteFromList&amp;id=$sessionCode">Delete From List</a></li>
-  <li><a href="?act=$msg_editList&amp;id=$sessionCode">Edit List</a></li>
+  <li><a href="?act=$msg_editThing&amp;id=$sessionCode">Edit List</a></li>
 </div>
 
 <br>
@@ -615,11 +615,19 @@ return
 sub editList {
 # Expects: 
 # Returns: 
-  my $msg_editList=msg_editList;
+  my $msg_editThing=msg_editThing;
 
   print <<editList;
   $commonHead
-  
+    <head>
+    <title></title>
+    </head>
+    <body>
+    <h3>The Editor</h3>
+    
+    
+    
+    </body>
   
 editList
 }
@@ -657,7 +665,7 @@ sub main {
   elsif ($action == msg_createNew) {
     createNew();
   }
-  elsif ($action == msg_editList) {
+  elsif ($action == msg_editThing) {
     editList();
   }
   elsif ($action == msg_deleteFromList) {
