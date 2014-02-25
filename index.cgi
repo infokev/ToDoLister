@@ -8,7 +8,7 @@ use String::Random;
 use CGI::Carp ("fatalsToBrowser");
 
 =begin
-Possibilities: 
+Possibilities:
 Connect
 LoginOK
 LoginFail
@@ -19,7 +19,7 @@ Logout
 
 SignUp
 =cut
-#
+# kkkkkkkkkkkkkkkkk
 ################################################################################################################################################################
 
 my $cgi= new CGI;
@@ -30,9 +30,9 @@ my $sc="::";
 
 ################################################################################################################################################################
 
-my $shortdescription=$cgi->param('ShortDescription'); 
-my $date=$cgi->param('Date'); 
-my $deadline=$cgi->param('Deadline'); 
+my $shortdescription=$cgi->param('ShortDescription');
+my $date=$cgi->param('Date');
+my $deadline=$cgi->param('Deadline');
 my $priority=$cgi->param('Priority');
 my $title=$cgi->param('Title');
 my $dueby=$cgi->param('DueBy');
@@ -64,7 +64,7 @@ use constant msg_createNew=>103;
 use constant msg_loginFail=>104;
 use constant msg_logOut => 105;
 use constant msg_signUp => 106;
-use constant msg_editThing=>107;
+use constant msg_editList=>107;
 use constant msg_deleteFromList=>108;
 use constant msg_saveItem => 109;
 
@@ -73,8 +73,8 @@ use constant salt => 'ko';
 ################################################################################################################################################################
 
 sub newConnection {
-# Expects: 
-# Returns: 
+# Expects:
+# Returns:
   if (sessionCount() < $maxSessions) {
     print loginDialog();
   }
@@ -88,9 +88,9 @@ sub newConnection {
 ################################################################################################################################################################
 
 sub getSessionCode {
-# Expects: 
-# Returns: 
-# Expects: 
+# Expects:
+# Returns:
+# Expects:
   $sessionCode=$cgi->param('id');
   return $sessionCode;
 }
@@ -98,9 +98,9 @@ sub getSessionCode {
 ################################################################################################################################################################
 
 sub getAction {
-# Expects: 
-# Returns: 
-  $action=$cgi->param('act'); 
+# Expects:
+# Returns:
+  $action=$cgi->param('act');
 }
 
 ################################################################################################################################################################
@@ -149,8 +149,8 @@ sub getUserName {
 ################################################################################################################################################################
 
 sub checkLogin {
-# Expects: 
-# Returns: 
+# Expects:
+# Returns:
   my $user=$cgi->param('username');
   my $pass=$cgi->param('password');
   if (passwordOK($user, $pass)) {
@@ -165,8 +165,8 @@ sub checkLogin {
 ################################################################################################################################################################
 
 sub loginOK {
-# Expects: 
-# Returns: 
+# Expects:
+# Returns:
   $activeUserNum=getUserNum($activeUser);
   $sessionCode=getNewSession($activeUser);
   return viewList();
@@ -175,8 +175,8 @@ sub loginOK {
 ################################################################################################################################################################
 
 sub loginFail {
-# Expects: 
-# Returns: 
+# Expects:
+# Returns:
   my $doing=msg_loginFail;
   my $html=<<loginFail_html;
 $commonHead
@@ -223,18 +223,18 @@ sub logOut {
     border-width:5px; /*this sets the width of the blue border outline*/
     border-color:#00ffff; /*setting border colour to Light blue */
     border-style:solid;
-	
+
 }
   body {
     background-color:gray; /*Gray color*/
     text-align:center;
     margin-left:auto; /*Horizontally centering to left*/
-    margin-right:auto;  /*Horizontally centering to right*/
-    width:800px; 
+    margin-right:auto; /*Horizontally centering to right*/
+    width:800px;
     padding:20px;
     }";
     
-  print "</style></head>"; 
+  print "</style></head>";
   print "<body>";
     
   print "<div id=\"main\">";
@@ -257,12 +257,12 @@ sub logOut {
 ################################################################################################################################################################
 
 sub viewList {
-# Expects: 
-# Returns: 
+# Expects:
+# Returns:
   my $doing=msg_viewList;
   my $msg_logOut=msg_logOut;
   my $msg_createNew=msg_createNew;
-  my $msg_editThing=msg_editThing;
+  my $msg_editList=msg_editList;
   my $msg_deleteFromList=msg_deleteFromList;
   my $listEntries;#=getList(); #$activeUser, $sessionCode);
   my $html=<<viewList_html1;
@@ -273,7 +273,7 @@ $commonHead
 <div id="main">
 <h3>TreeBeard ToDoLister for user $activeUser</h3>
 viewList_html1
-  foreach (0..2) {  # REPLACE!
+  foreach (0..2) { # REPLACE!
     $html .= getList($_);
   }
   
@@ -287,13 +287,13 @@ viewList_html1
 
 <div id="main">
 
-<br> 
+<br>
 
 <div id="links">
   <li><a href="?act=$msg_logOut&amp;id=$sessionCode">Log Out</a></li>
   <li><a href="?act=$msg_createNew&amp;id=$sessionCode">Add a new Task</a></li>
   <li><a href="?act=$msg_deleteFromList&amp;id=$sessionCode">Delete From List</a></li>
-  <li><a href="?act=$msg_editThing&amp;id=$sessionCode">Edit List</a></li>
+  <li><a href="?act=$msg_editList&amp;id=$sessionCode">Edit List</a></li>
 </div>
 
 <br>
@@ -308,7 +308,6 @@ viewList_html2
 
 ################################################################################################################################################################
 
-
 sub getList {
   my ($q, $qh, $html, @thing, $priority);
   $priority=$_[0];
@@ -318,13 +317,11 @@ sub getList {
   $qh->execute();
   $html="<table>";
   while (@thing=$qh->fetchrow_array()) {
-    $html .= "<tr>";
-    $html .= "<th><a href=\"";
-    $html .= "?act=". msg_editThing;
-    $html .= "&amp;thing=$thing[0]";
-    $html .= "\">$thing[2]</a></th>";
-    $html .= "<td>$thing[3]</td>";
-    $html .= "<td>$thing[7]</td></tr>";
+    $html .= "<tr><td><table width='100%'>";
+    $html .= "<tr><th>$thing[2]</th></tr>";
+    $html .= "<tr><td>$thing[3]</td></tr>";
+    $html .= "<tr><td><hr></td></tr>";
+    $html .= "</td></tr></table>";
   }
   $html .= "</table>";
   return $html;
@@ -333,7 +330,7 @@ sub getList {
 ################################################################################################################################################################
 
 sub loginDialog {
-# Expects: 
+# Expects:
 # Returns:
   my $doing=msg_checkLogin;
   my $html=<<loginDialog_html;
@@ -363,7 +360,7 @@ loginDialog_html
 ################################################################################################################################################################
 
 sub tooManySessions {
-# Expects: 
+# Expects:
 # Returns:
   my $doing=msg_checkLogin;
   my $html=<<tooManySessions_html;
@@ -394,7 +391,7 @@ sub initVars {
   $qh->execute();
   $maxSessions=$qh->fetchrow();
   # what about $ENV{REMOTE_HOST}print $q;
-  $ipAddress =  $ENV{REMOTE_ADDR};
+  $ipAddress = $ENV{REMOTE_ADDR};
   $commonHead=<<commonHead_html
 <!DOCTYPE html>
   <html>
@@ -403,43 +400,43 @@ sub initVars {
   <title>TreeBeard To-Do-Lister </title>
  <style>
 #main {
-	 background-color: #00B060; /*Green color*/
-	 text-align:center; /*this is the only one which can change where the writing is placed*/
-	 border-width:5px; /*this sets the width of the blue bor+der outline*/
-	 border-color:#00ffff; /*setting border colour to Light blue */
-	 border-style:solid;
-	
+background-color: #00B060; /*Green color*/
+text-align:center; /*this is the only one which can change where the writing is placed*/
+border-width:5px; /*this sets the width of the blue bor+der outline*/
+border-color:#00ffff; /*setting border colour to Light blue */
+border-style:solid;
+
 }
 body {
-	background-color:gray; /*Gray color*/
-	text-align:center;
-	margin-left:auto; /*Horizontally centering to left*/
-	margin-right:auto;  /*Horizontally centering to right*/
-	width:900px; 
-	padding:20px;
-	
-}	
+background-color:gray; /*Gray color*/
+text-align:center;
+margin-left:auto; /*Horizontally centering to left*/
+margin-right:auto; /*Horizontally centering to right*/
+width:900px;
+padding:20px;
+
+}
 }
 #links {
-	
-	text-align:center; /*this is the only one which can change where the writing is placed*/
-	background-color: #00ffff; /*highlights a complete line across the menu bar*/	
+
+text-align:center; /*this is the only one which can change where the writing is placed*/
+background-color: #00ffff; /*highlights a complete line across the menu bar*/
       
 }
 #links li {
-	margin:0px 7px;
-	display:inline;
-	background-color:#00ffff;/*this is the color of the links like the homepage videos products the color is light blue*/
+margin:0px 7px;
+display:inline;
+background-color:#00ffff;/*this is the color of the links like the homepage videos products the color is light blue*/
 }
 </style>
 </head>
 <body>
   
-  <div id="main">  
+  <div id="main">
   
   <br>
 
-  <div id="links"> 
+  <div id="links">
   <ul>
   <li><a href=\"http://treebeard.ie/webmail">Webmail</a></li>
   <li><a href=\"http://treebeard.ie/projectsLister/\">Projects Lister</a>
@@ -462,6 +459,9 @@ commonHead_html
 }
 
 ################################################################################################################################################################
+#my $saveInfo= $priority.$descrip.$date.$deadline;
+#print "$saveInfo";
+################################################################################################################################################################
 
 sub sessionCount {
   my ($q, $qh);
@@ -470,7 +470,7 @@ sub sessionCount {
   $qh->execute();
   my $count=$qh->fetchrow();
   return $count;
-}  
+}
 
 ################################################################################################################################################################
 
@@ -528,20 +528,22 @@ sub stampSession {
 
 ################################################################################################################################################################
 
-# this is the second page 
+# this is the second page
 sub createNew {
-# Expects: 
-# Returns: 
+# Expects:
+# Returns:
   my $tempVar=msg_saveItem;
   my $sessionID=getSessionCode();
   print <<createNew;
   $commonHead
+
+<html>
 <head>
 <title>Second Page</title>
-</head> 
+</head>
 <body>
 
-  <div id="main">  
+  <div id="main">
   
   <a href="toDoListinput.html"></a>
 
@@ -551,8 +553,18 @@ sub createNew {
   <table>
   <h1>Treebeard To-Do-Lister</h1>
   </table>
+  
+  <br>
+ 
+  <table border="0" cellpadding="5" cellspacing="0" width="600">
+  <table>
+
+  <br>
+
+  <table>
   <tr><td><b>Add a Task To the List:</b></td>
-  <td><select name=\"Priority\" placeholder="priority"  maxlength="60" style="width:146px; border:1px solid #999999" /> 
+ 
+  <td><select name=\"Priority\" placeholder="priority" maxlength="60" style="width:146px; border:1px solid #999999" />
   <option name=\" \"> Priority
   <option value=\"High\">High
   <option value=\"Medium\">Medium
@@ -561,21 +573,22 @@ sub createNew {
   <br>
   <input id="Title" placeholder="Title" name="Title" type="text" maxlength="60" style="width:146px; border:1px solid #999999" />
   <br>
-  <input id="ShortDescription" placeholder="ShortDescription" name="ShortDescription" type="text" maxlength="200" style="width:146px; border:1px solid #999999" />
+  <input id="ShortDescription" placeholder="ShortDescription" name="ShortDescription" type="text" maxlength="1000" style="width:146px; border:1px solid #999999" />
   <br>
   <input id="Date" placeholder="Date" name="Date" type="text" maxlength="60" style="width:146px; border:1px solid #999999" />
   <br>
   <input id="Dueby" placeholder="Dueby" name="DueBy" type="text" maxlength="60" style="width:146px; border:1px solid #999999" />
   <br>
-  <input id="ThingsToDo" placeholder="ThingsToDo" name="ThingsToDo" type="text" maxlength="200" style="width:146px; border:1px solid #999999" />
+  <input id="ThingsToDo" placeholder="ThingsToDo" name="ThingsToDo" type="text" maxlength="60" style="width:146px; border:1px solid #999999" />
   
   </td></tr>
   </table>
   <br>
   <tr><td colspan="2"><input type="submit" value="Confirm and Save"></td></tr>
   <br>
-  <br> 
+  <br>
   </div>
+
   </form></body></html>
   
 createNew
@@ -585,7 +598,7 @@ return
 ################################################################################################################################################################
 
 # opening my database file which is called KDLOG.txt
-  open FILE, ">> $saveFile"; 
+  open FILE, ">> $saveFile";
   # puting all the new enterd information from the input fields into that file
   my $saveInfo= "Title: ".$title."Priority: ".$priority." | ShortDescription: ".$shortdescription." | Date: ".$date." | Deadline: ".$deadline." | DueBy: ".$dueby." | ThingsToDo: ".$thingstodo;
   # puting the information into the file
@@ -597,21 +610,13 @@ return
 
 # this lets you edit the todolister
 sub editList {
-# Expects: 
-# Returns: 
-  my $msg_editThing=msg_editThing;
+# Expects:
+# Returns:
+  my $msg_editList=msg_editList;
 
   print <<editList;
   $commonHead
-    <head>
-    <title></title>
-    </head>
-    <body>
-    <h3>The Editor</h3>
-    
-    
-    
-    </body>
+  
   
 editList
 }
@@ -619,14 +624,14 @@ editList
 ################################################################################################################################################################
 
 sub deleteFromList {
-# Expects: 
-# Returns: 
+# Expects:
+# Returns:
   my $msg_deleteFromList=msg_editList;
  # print <<deleteFromList;
-#  $commonHead
+# $commonHead
  
  
-#deleteFromList 
+#deleteFromList
 }
 
 ################################################################################################################################################################
@@ -649,7 +654,7 @@ sub main {
   elsif ($action == msg_createNew) {
     createNew();
   }
-  elsif ($action == msg_editThing) {
+  elsif ($action == msg_editList) {
     editList();
   }
   elsif ($action == msg_deleteFromList) {
@@ -702,7 +707,5 @@ sub saveNewItem {
 }
 
 ################################################################################################################################################################
-
-
 
 
