@@ -19,7 +19,7 @@ Logout
 
 SignUp
 =cut
-# kkkkkkkkkkkkkkkkk
+#
 ################################################################################################################################################################
 
 my $cgi= new CGI;
@@ -308,6 +308,7 @@ viewList_html2
 
 ################################################################################################################################################################
 
+
 sub getList {
   my ($q, $qh, $html, @thing, $priority);
   $priority=$_[0];
@@ -317,11 +318,13 @@ sub getList {
   $qh->execute();
   $html="<table>";
   while (@thing=$qh->fetchrow_array()) {
-    $html .= "<tr><td><table width='100%'>";
-    $html .= "<tr><th>$thing[2]</th></tr>";
-    $html .= "<tr><td>$thing[3]</td></tr>";
-    $html .= "<tr><td><hr></td></tr>";
-    $html .= "</td></tr></table>";
+    $html .= "<tr>";
+    $html .= "<th><a href=\"";
+    $html .= "?act=". msg_editThing;
+    $html .= "&amp;thing=$thing[0]";
+    $html .= "\">$thing[2]</a></th>";
+    $html .= "<td>$thing[3]</td>";
+    $html .= "<td>$thing[7]</td></tr>";
   }
   $html .= "</table>";
   return $html;
