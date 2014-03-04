@@ -20,7 +20,7 @@ Logout
 SignUp
 =cut
 
-################################################################################################################################################################
+
 
 my $cgi= new CGI;
 
@@ -28,35 +28,34 @@ my $myuser="it.kevind";
 # my character seperator
 my $sc="::";
 
-################################################################################################################################################################
+
 
 my $shortdescription=$cgi->param('ShortDescription'); 
 my $date=$cgi->param('Date'); 
-my $deadline=$cgi->param('Deadline'); 
 my $priority=$cgi->param('Priority');
 my $title=$cgi->param('Title');
 my $dueby=$cgi->param('DueBy');
 my $thingstodo=$cgi->param('ThingsToDo');
 
-################################################################################################################################################################
+
 
 my ($action, $cgi, $db, $dbh, $dbconn);
 my ($maxSessions, $sessionCount, $sessionCode, $ipAddress, $activeUser, $activeUserNum);
 my $commonHead="<!DOCTYPE html><html>";
 
-################################################################################################################################################################
+
 
 my $dbname="toDoList";
 my $dbhost="localhost";
 my $dbuser="todolist";
 my $dbpass="qoukli_90P";
 
-################################################################################################################################################################
+
 my ($saveFile, $saveInfo);
 
 $saveFile="/home/$myuser/public_html/cgi-bin/toDoLister/ListerLog.txt";
 
-################################################################################################################################################################
+
 
 use constant msg_checkLogin=>101;
 use constant msg_viewList=>102;
@@ -70,7 +69,125 @@ use constant msg_saveItem => 109;
 
 use constant salt => 'ko';
 
-################################################################################################################################################################
+# this is the first page
+sub initVars {
+  my ($q, $qh);
+  $cgi=new CGI;
+  $dbconn="dbi:mysql:$dbname;$dbhost";
+  $dbh = DBI->connect($dbconn, $dbuser, $dbpass);
+  $q="SELECT Value FROM Variables WHERE NAME='MaxSessions';";
+  $qh=$dbh->prepare($q);
+  $qh->execute();
+  $maxSessions=$qh->fetchrow();
+  # what about $ENV{REMOTE_HOST}print $q;
+  $ipAddress =  $ENV{REMOTE_ADDR};
+  $commonHead=<<commonHead_html
+<!DOCTYPE html><html><head>
+<title>TreeBeard ToDo Lister</title>
+<link rel="stylesheet" type="text/css" href="todo.css">
+</head>
+
+<body>
+  
+  <div id="main"><br>
+ 
+  <img src="todolist.jpg" width="450px" height="100px" alt="todolist.jpg">
+ 
+  <div id="links"> 
+  
+  <ul>
+  <li><a href=\"http://treebeard.ie/webmail">Webmail</a></li>
+  <li><a href=\"http://treebeard.ie/projectsLister/\">Projects Lister</a>
+  <li><a href=\"http://treebeard.ie/">Treebeard</a></li>
+  <li><a href=\"http://treebeard.fachtnaroe.net/~$myuser/cgi-bin/toDoLister/index.cgi">ToDo List</a></li>
+  </ul>
+  
+</div><br></div><br><br>
+
+commonHead_html
+}
+
+# this is the second page 
+sub createNew {
+# Expects: 
+# Returns: 
+  my $tempVar=msg_saveItem;
+  my $sessionID=getSessionCode();
+  print <<createNew;
+  $commonHead
+
+  <div class="main">  
+  
+  <a href="toDoListinput.html"></a>
+
+  <form action="index.cgi" method="post">
+  <input type="hidden" name="act" value="$tempVar">
+  <input type="hidden" name="id" value="$sessionID"><br>
+
+
+  <table>
+  <tr><td><b>Add a Task To the List:</b></td><br>
+  
+  <td><select name=\"Priority\" maxlength="60" style="width:146px; border:1px solid #999999" /> 
+  <option value="0">High </option>
+  <option value="5">Medium </option>
+  <option value="10">Lowest
+  </option></select>
+  
+  <input id="Title" placeholder="Title" name="Title" type="text" maxlength="60" style="width:146px; border:1px solid #999999" />
+  <input id="ShortDescription" placeholder="ShortDescription" name="ShortDescription" type="text" maxlength="200" style="width:146px; border:1px solid #999999" /><br>
+  <input id="Date" placeholder="YYYY/MM/DD" name="Date" type="text" maxlength="60" style="width:146px; border:1px solid #999999" />
+  <input id="Dueby" placeholder="YYYY/MM/DD" name="DueBy" type="text" maxlength="60" style="width:146px; border:1px solid #999999" />
+  <input id="ThingsToDo" placeholder="ThingsToDo" name="ThingsToDo" type="text" maxlength="200" style="width:146px; border:1px solid #999999" />
+  
+ 
+
+  <tr><td colspan="2"><input type="submit" value="Confirm and Save"></td></tr><br><br> 
+   </td></tr></table><br>
+  </div></form></body></html>
+  
+createNew
+return
+}
+
+
+# this lets you edit the todolister
+sub editList {
+# Expects: 
+# Returns: 
+  my $msg_editThing=msg_editThing;
+  
+  print <<editList;
+  $commonHead
+  <body>
+  <div id="main">
+  <h3>The Editor</h3>
+    
+  <p>Make Your Changes Here</p>
+   
+  <td><select name=\"Priority\" maxlength="60" style="width:146px; border:1px solid #999999" /> 
+  <option value="0">High
+  <option value="5">Medium
+  <option value="10">Lowest
+  </option></select>
+  <input id="Title" name="Title" type="text" maxlength="60" style="width:146px; border:1px solid #999999" />
+  <input id="ShortDescription" name="ShortDescription" type="text" maxlength="200" style="width:146px; border:1px solid #999999" /><br>
+  
+  <input id="Date" name="Date" type="text" maxlength="60" style="width:146px; border:1px solid #999999" />
+  <input id="Dueby" name="DueBy" type="text" maxlength="60" style="width:146px; border:1px solid #999999" />
+  <input id="ThingsToDo" name="ThingsToDo" type="text" maxlength="200" style="width:146px; border:1px solid #999999" />
+  </table><br>
+   
+  <input type=\"checkbox\" name=\"delete\" value=\"delete\">
+  <tr><td colspan=\"2\"><input type=\"submit\" value=\"Delete Selected\"></td></tr><br>
+  <tr><td colspan=\"2\"><input type=\"submit\" value=\"Save Changes\"></td></tr><br><br>
+  </div>
+
+</body></html>
+
+editList
+}
+
 
 sub newConnection {
 # Expects: 
@@ -85,7 +202,6 @@ sub newConnection {
   }
 }
 
-################################################################################################################################################################
 
 sub getSessionCode {
 # Expects: 
@@ -95,7 +211,6 @@ sub getSessionCode {
   return $sessionCode;
 }
 
-################################################################################################################################################################
 
 sub getAction {
 # Expects: 
@@ -103,7 +218,6 @@ sub getAction {
   $action=$cgi->param('act'); 
 }
 
-################################################################################################################################################################
 
 sub passwordOK {
   my $user=$_[0];
@@ -122,7 +236,6 @@ sub passwordOK {
   }
 }
 
-################################################################################################################################################################
 
 sub getUserNum {
   my ($q, $qh);
@@ -134,7 +247,6 @@ sub getUserNum {
   return $usercode;
 }
 
-################################################################################################################################################################
 
 sub getUserName {
   my ($q, $qh);
@@ -146,7 +258,6 @@ sub getUserName {
   return $userName;
 }
 
-################################################################################################################################################################
 
 sub checkLogin {
 # Expects: 
@@ -162,7 +273,6 @@ sub checkLogin {
   }
 }
 
-################################################################################################################################################################
 
 sub loginOK {
 # Expects: 
@@ -172,7 +282,6 @@ sub loginOK {
   return viewList();
 }
 
-################################################################################################################################################################
 
 sub loginFail {
 # Expects: 
@@ -181,7 +290,7 @@ sub loginFail {
   my $html=<<loginFail_html;
 $commonHead
 <body>
-<div id="main">
+<div class="main">
 <h1>Error in Login</h1>
 
 Please login:
@@ -192,8 +301,7 @@ Please login:
 <tr><td>Password:</td><td><input name="password" type="password"></td></tr>
 <tr><td colspan="2"><input type="submit" value="login now"></td></tr>
 </table>
-</form>
-<br>
+</form><br>
 </div>
 </body>
 </html>
@@ -201,7 +309,6 @@ loginFail_html
   return $html;
 }
 
-################################################################################################################################################################
 
 sub logOut {
   my ($q, $qh);
@@ -213,48 +320,37 @@ sub logOut {
   if ($result == 1) {
   
 
-  print "<!DOCTYPE html><html><head><title>Treebeard To-Do-Lister</title>";
-  print "<style>";
-    
-  print "
-  #main {
-    background-color: #00B060; /*Green color*/
-    text-align:center; /*this is the only one which can change where the writing is placed*/
-    border-width:5px; /*this sets the width of the blue border outline*/
-    border-color:#00ffff; /*setting border colour to Light blue */
-    border-style:solid;
-	
-}
-  body {
-    background-color:gray; /*Gray color*/
-    text-align:center;
-    margin-left:auto; /*Horizontally centering to left*/
-    margin-right:auto;  /*Horizontally centering to right*/
-    width:800px; 
-    padding:20px;
-    }";
-    
-  print "</style></head>"; 
+  print "<!DOCTYPE html><html><head><title>Treebeard ToDo List</title>";
+  print "<link rel=\"stylesheet\" type=\"text/css\" href=\"todo.css\">";
+  print "</head>"; 
   print "<body>";
+  
+  print "<div id=\"main\"><br>
+ 
+  <img src=\"todolist.jpg\" width=\"450px\" height=\"100px\">
+ 
+  <div id=\"links\"> 
+  
+  <ul>
+  <li><a href=\"http://treebeard.ie/webmail\">Webmail</a></li>
+  <li><a href=\"http://treebeard.ie/projectsLister/\">Projects Lister</a>
+  <li><a href=\"http://treebeard.ie/\">Treebeard</a></li>
+  <li><a href=\"http://treebeard.fachtnaroe.net/~$myuser/cgi-bin/toDoLister/index.cgi\">ToDo List</a></li>
+  </ul>
+  
+  </div><br></div><br><br>";
     
   print "<div id=\"main\">";
   print "<h1>Exiting The Forest</h1>";
   print "You Have Been Logged Out";
-  print "<br>";
-  print "<br>";
+  print "<br><br>";
+  print "<a href=\" http://treebeard.fachtnaroe.net/~it.kevind/cgi-bin/toDoLister/index.cgi\">Return to Sign In</a><br><br>";
+  #print "<a href=\"http://treebeard.ie/~$myuser/cgi-bin/toDoLister/index.cgi\">Return to Sign In</a><br><br>";
     
-  print "<a href=\"http://treebeard.ie/~$myuser/cgi-bin/toDoLister/index.cgi\">Return to Sign In</a>";
-    
-  print "<br>";
-  print "<br>";
-    
-  print "</div>";
-  print "</body></html>";
-
+  print "</div></body></html>";
   }
 }
 
-################################################################################################################################################################
 
 sub viewList {
 # Expects: 
@@ -270,66 +366,35 @@ sub viewList {
 $commonHead
 <body>
 
-<div id="main">
-<h3>TreeBeard ToDoLister for user $activeUser</h3>
+<div class="main">
+
+<h3>TreeBeard ToDo List for user $activeUser</h3>
+
 viewList_html1
-  foreach (0..2) {  # REPLACE!
+# this is for the drop down priority it lets a priority number passed in shows up
+  foreach (0..10) {  # REPLACE!
     $html .= getList($_);
   }
   
 #$listEntries
   $html.=<<viewList_html2;
   
-</div>
+</div><br><br>
 
-<br>
-<br>
+<div class="main"><br>
 
-<div id="main">
-
-<br> 
-
-<div id="links">
+<div class="links">
   <li><a href="?act=$msg_logOut&amp;id=$sessionCode">Log Out</a></li>
   <li><a href="?act=$msg_createNew&amp;id=$sessionCode">Add a new Task</a></li>
-  <li><a href="?act=$msg_deleteFromList&amp;id=$sessionCode">Delete From List</a></li>
-  <li><a href="?act=$msg_editThing&amp;id=$sessionCode">Edit List</a></li>
-</div>
-
-<br>
+</div><br>
 
 </div>
 
-</body>
-</html>
+</body></html>
 viewList_html2
   return $html;
 }
 
-################################################################################################################################################################
-
-sub getList {
-  my ($q, $qh, $html, @thing, $priority);
-  $priority=$_[0];
-  print "[$activeUserNum]";
-  $q="SELECT * FROM ThingsToDo WHERE UserNum='$activeUserNum' AND Priority='$priority';";
-  $qh=$dbh->prepare($q);
-  $qh->execute();
-  $html="<table>";
-  while (@thing=$qh->fetchrow_array()) {
-    $html .= "<tr>";
-    $html .= "<th><a href=\"";
-    $html .= "?act=". msg_editThing;
-    $html .= "&amp;thing=$thing[0]";
-    $html .= "\">$thing[2]</a></th>";
-    $html .= "<td>$thing[3]</td>";
-    $html .= "<td>$thing[7]</td></tr>";
-  }
-  $html .= "</table>";
-  return $html;
-}
-
-################################################################################################################################################################
 
 sub loginDialog {
 # Expects: 
@@ -337,29 +402,30 @@ sub loginDialog {
   my $doing=msg_checkLogin;
   my $html=<<loginDialog_html;
 $commonHead
-<center>
-<body>
-<div id="main">
+
+
+<div class="main">
+
 <h1>Welcome To TreeBeard Forest</h1>
+
 Please login:<br><i><small>or <a href="?act=">sign up</a></small></i>
-<form action="" method="post">
-<br>
+<form action="" method="post"><br>
+
 <input type="hidden" name="act" value="$doing">
+<table style="float:center">
 <table>
 <tr><td>Username:</td><td><input name="username" type="text"></td></tr>
 <tr><td>Password:</td><td><input name="password" type="password"></td></tr>
-<tr><td colspan="2"><input type="submit" value="login now"></td></tr>
-</table>
-<br>
+<tr><td colspan="2"><input type="submit" value="Login Now"></td></tr>
+</table><br>
+
 </div>
-</form>
-</body>
-</html>
+
+</form></body></html>
 loginDialog_html
   return $html;
 }
 
-################################################################################################################################################################
 
 sub tooManySessions {
 # Expects: 
@@ -368,99 +434,17 @@ sub tooManySessions {
   my $html=<<tooManySessions_html;
 $commonHead
 <body>
-<div id="main"
+<div class="main"
 <h1>Sorry My Fellow Ant</h1>
 
 <p>There are too many sessions, you need to remember to logout</p>
 </div>
 
-</body>
-</html>
+</body></html>
 tooManySessions_html
   return $html;
 }
 
-################################################################################################################################################################
-
-# this is the first page
-sub initVars {
-  my ($q, $qh);
-  $cgi=new CGI;
-  $dbconn="dbi:mysql:$dbname;$dbhost";
-  $dbh = DBI->connect($dbconn, $dbuser, $dbpass);
-  $q="SELECT Value FROM Variables WHERE NAME='MaxSessions';";
-  $qh=$dbh->prepare($q);
-  $qh->execute();
-  $maxSessions=$qh->fetchrow();
-  # what about $ENV{REMOTE_HOST}print $q;
-  $ipAddress =  $ENV{REMOTE_ADDR};
-  $commonHead=<<commonHead_html
-<!DOCTYPE html>
-  <html>
-  <head>
-  <link type="text/css" href="/it.kevind/public_html/cgi-bin/toDoLister/todo.css" rel="stylesheet">
-  <title>TreeBeard To-Do-Lister </title>
- <style>
-#main {
-	 background-color: #00B060; /*Green color*/
-	 text-align:center; /*this is the only one which can change where the writing is placed*/
-	 border-width:5px; /*this sets the width of the blue bor+der outline*/
-	 border-color:#00ffff; /*setting border colour to Light blue */
-	 border-style:solid;
-	
-}
-body {
-	background-color:gray; /*Gray color*/
-	text-align:center;
-	margin-left:auto; /*Horizontally centering to left*/
-	margin-right:auto;  /*Horizontally centering to right*/
-	width:900px; 
-	padding:20px;
-	
-}	
-}
-#links {
-	
-	text-align:center; /*this is the only one which can change where the writing is placed*/
-	background-color: #00ffff; /*highlights a complete line across the menu bar*/	
-      
-}
-#links li {
-	margin:0px 7px;
-	display:inline;
-	background-color:#00ffff;/*this is the color of the links like the homepage videos products the color is light blue*/
-}
-</style>
-</head>
-<body>
-  
-  <div id="main">  
-  
-  <br>
-
-  <div id="links"> 
-  <ul>
-  <li><a href=\"http://treebeard.ie/webmail">Webmail</a></li>
-  <li><a href=\"http://treebeard.ie/projectsLister/\">Projects Lister</a>
-  <li><a href=\"http://treebeard.ie/">Treebeard</a></li>
-  <li><a href=\"http://treebeard.ie/~$myuser/cgi-bin/toDoLister/index.cgi/">To-Do-Lister</a></li>
-  <li><a href=\"?act=\$msg_logOut&amp;id=\$sessionCode\">Log Out</a></li>
-  <ul>
-</div>
-
-  <br>
-  
-</div>
-
-<br>
-<br>
-
-</body>
-</html>
-commonHead_html
-}
-
-################################################################################################################################################################
 
 sub sessionCount {
   my ($q, $qh);
@@ -471,7 +455,6 @@ sub sessionCount {
   return $count;
 }  
 
-################################################################################################################################################################
 
 sub getNewSession {
 # this is a new session, get an ID if possible
@@ -490,7 +473,6 @@ sub getNewSession {
   }
 }
 
-################################################################################################################################################################
 
 sub makeSessionCode {
   my $tempCode = new String::Random;
@@ -498,7 +480,6 @@ sub makeSessionCode {
   return $thing;
 }
 
-################################################################################################################################################################
 
 sub checkSession {
 # does this session id exist
@@ -514,7 +495,6 @@ sub checkSession {
   }
 }
 
-################################################################################################################################################################
 
 sub stampSession {
 # timestamp this session to avoid expiry
@@ -525,104 +505,6 @@ sub stampSession {
   $qh->execute();
 }
 
-################################################################################################################################################################
-
-# this is the second page 
-sub createNew {
-# Expects: 
-# Returns: 
-  my $tempVar=msg_saveItem;
-  my $sessionID=getSessionCode();
-  print <<createNew;
-  $commonHead
-<head>
-<title>Second Page</title>
-</head> 
-<body>
-
-  <div id="main">  
-  
-  <a href="toDoListinput.html"></a>
-
-  <form action="index.cgi" method="post">
-  <input type="hidden" name="act" value="$tempVar">
-  <input type="hidden" name="id" value="$sessionID">
-  <table>
-  <h1>Treebeard To-Do-Lister</h1>
-  </table>
-  <tr><td><b>Add a Task To the List:</b></td>
-  <td><select name=\"Priority\" placeholder="priority"  maxlength="60" style="width:146px; border:1px solid #999999" /> 
-  <option name= > Priority
-  <option value=\"High\">High
-  <option value=\"Medium\">Medium
-  <option value=\"Small\">Small
-  </option></select>
-  <br>
-  <input id="Title" placeholder="Title" name="Title" type="text" maxlength="60" style="width:146px; border:1px solid #999999" />
-  <br>
-  <input id="ShortDescription" placeholder="ShortDescription" name="ShortDescription" type="text" maxlength="200" style="width:146px; border:1px solid #999999" />
-  <br>
-  <input id="Date" placeholder="Date" name="Date" type="text" maxlength="60" style="width:146px; border:1px solid #999999" />
-  <br>
-  <input id="Dueby" placeholder="Dueby" name="DueBy" type="text" maxlength="60" style="width:146px; border:1px solid #999999" />
-  <br>
-  <input id="ThingsToDo" placeholder="ThingsToDo" name="ThingsToDo" type="text" maxlength="200" style="width:146px; border:1px solid #999999" />
-  
-  </td></tr>
-  </table>
-  <br>
-  <tr><td colspan="2"><input type="submit" value="Confirm and Save"></td></tr>
-  <br>
-  <br> 
-  </div>
-  </form></body></html>
-  
-createNew
-return
-}
-
-################################################################################################################################################################
-
-# opening my database file which is called KDLOG.txt
-  open FILE, ">> $saveFile"; 
-  # puting all the new enterd information from the input fields into that file
-  my $saveInfo= "Title: ".$title."Priority: ".$priority." | ShortDescription: ".$shortdescription." | Date: ".$date." | Deadline: ".$deadline." | DueBy: ".$dueby." | ThingsToDo: ".$thingstodo;
-  # puting the information into the file
-  print FILE "$saveInfo\n";
-  # closing the file
-  close FILE;
-
-################################################################################################################################################################
-
-# this lets you edit the todolister
-sub editList {
-# Expects: 
-# Returns: 
-  my $msg_editThing=msg_editThing;
-  
-  print <<editList;
-  $commonHead
-    <head>
-    <title></title>
-    </head>
-    <body>
-    <div id="main">
-    <h3>The Editor</h3>
-    
-    <p>Make Your Changes Here</p>
-  
-    <input type=\"radio\"name=\"Delete\" value=\"Delete\">
-    
-    <br>
-    <br>
-    </div>
-    
-    </body>
-  
-editList
-}
-
-################################################################################################################################################################
 
 sub deleteFromList {
 # Expects: 
@@ -631,11 +513,77 @@ sub deleteFromList {
  # print <<deleteFromList;
 #  $commonHead
  
- 
 #deleteFromList 
 }
 
-################################################################################################################################################################
+
+sub printHashPass {
+  my ($pass)="pass";
+  $pass=crypt $pass, salt;
+  print "[$pass]\n";
+}
+
+
+# this gets information from the ThingsToDo folder in the SQL database
+sub getList {
+  my ($q, $qh, $html, @thing, $priority);
+  # any priority number passed in so its not restricted to 1 priority number
+  $priority=shift;
+  # this is for experimental purposes
+  # print "[$activeUserNum]";
+  # selects Title shortdescription date dueby thingtodo from the SQL database
+  $q="SELECT * FROM ThingsToDo WHERE UserNum='$activeUserNum' AND Priority='$priority';";
+  $qh=$dbh->prepare($q);
+  $qh->execute();
+  $html="<table width=\"100%\">";
+  while (@thing=$qh->fetchrow_array()) {
+    $html .= "<tr>";
+    $html .= "<th><a href=\"";
+    $html .= "?act=". msg_editThing;
+    $html .= "&amp;thing=$thing[0]";
+    $html .= "\">$thing[2]</a></th>";
+    $html .= "<td>$thing[3]</td>";
+    $html .= "<td>$thing[4]</td>";
+    $html .= "<td>$thing[5]</td>";
+    $html .= "<td>$thing[6]</td>";
+    $html .= "<td>$thing[7]</td></tr>";
+  }
+  $html .= "</table>";
+  return $html;
+}
+
+
+# for saving things into the ThingsToDo Folder in the treebeard sql database
+sub saveNewItem {
+  my ($q, $qh);
+  # my $userNum = getUserNum();
+  # This querys the information in the SQL database folder ThingsToDo
+  $q="INSERT INTO ThingsToDo (UserNum, Title, ShortDescription, Priority, Date, DueBy, ThingToDo) VALUES (?, ?, ?, ?, ?, ?, ?);";
+  $qh=$dbh->prepare($q);
+  # print "[",getSessionCode(),"]";
+  # print "[$q]";
+  my $userName=getUserName(getSessionCode());
+  # print "[$userName]";
+  my $userNum=getUserNum($userName);
+  # print "[$userNum]";
+  # gets the values
+  $qh->execute($userNum, $title, $shortdescription, $priority, $date, $dueby, $thingstodo);
+  $activeUser=$userName;
+  $activeUserNum=$userNum;
+  # prints the values in the ThingsToDo database
+  print viewList();
+}
+
+
+# opening my personal database file which is called ListerLog.txt
+  open FILE, ">> $saveFile"; 
+  # puting all the new enterd information from the input fields into that file
+  my $saveInfo= "Title: ".$title."Priority: ".$priority." | ShortDescription: ".$shortdescription." | Date: ".$date." | DueBy: ".$dueby." | ThingsToDo: ".$thingstodo;
+  # puts the information into the file
+  print FILE "$saveInfo\n";
+  # closing the file
+  close FILE;
+  
 
 # variables
 sub main {
@@ -672,55 +620,4 @@ sub main {
   }
 }
 main();
-
-################################################################################################################################################################
-
-sub printHashPass {
-  my ($pass)="pass";
-  $pass=crypt $pass, salt;
-  print "[$pass]\n";
-}
-
-################################################################################################################################################################
-
-# for saving things into the treebeard sql database
-sub saveNewItem {
-  my ($q, $qh);
-  #my $userNum = getUserNum();
-  #this puts the inputed information into the SQL TreeBeard database
-  $q="INSERT INTO ThingsToDo (ShortDescription UserNum) VALUES (?, ?);";
-  $qh=$dbh->prepare($q);
-  #print "[",getSessionCode(),"]";
-  #print "[$q]";
-  my $userName=getUserName(getSessionCode());
-  #print "[$userName]";
-  my $userNum=getUserNum($userName);
-  #print "[$userNum]";
-  
-  #$qh->execute($priority, $userNum);
-  $qh->execute($title, $userNum);
-  $qh->execute($shortdescription, $userNum);
-  #$qh->execute($date, $userNum);
-  #$qh->execute($dueby, $userNum);
-  #$qh->execute($thingstodo, $userNum);
-  $activeUser=$userName;
-  $activeUserNum=$userNum;
-  print viewList();
-}
-
-################################################################################################################################################################
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
