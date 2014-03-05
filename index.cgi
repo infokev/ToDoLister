@@ -82,24 +82,24 @@ sub initVars {
   # what about $ENV{REMOTE_HOST}print $q;
   $ipAddress =  $ENV{REMOTE_ADDR};
   $commonHead=<<commonHead_html
-<!DOCTYPE html><html><head>
+  
+<!DOCTYPE html><html>
+<head>
 <title>TreeBeard ToDo Lister</title>
 <link rel="stylesheet" type="text/css" href="todo.css">
 </head>
-
-<body>
   
   <div id="main"><br>
  
-  <img src="todolist.jpg" width="450px" height="100px" alt="todolist.jpg">
+  <img src="todolist.jpg" width="450" height="100" alt="todolist.jpg">
  
   <div id="links"> 
   
   <ul>
-  <li><a href=\"http://treebeard.ie/webmail">Webmail</a></li>
-  <li><a href=\"http://treebeard.ie/projectsLister/\">Projects Lister</a>
-  <li><a href=\"http://treebeard.ie/">Treebeard</a></li>
-  <li><a href=\"http://treebeard.fachtnaroe.net/~$myuser/cgi-bin/toDoLister/index.cgi">ToDo List</a></li>
+  <li><a href="http://treebeard.ie/webmail">Webmail</a></li>
+  <li><a href="http://treebeard.ie/projectsLister">Projects Lister</a>
+  <li><a href="http://treebeard.ie">Treebeard</a></li>
+  <li><a href="http://treebeard.fachtnaroe.net/~$myuser/cgi-bin/toDoLister/index.cgi">ToDo List 20 line 105</a></li>
   </ul>
   
 </div><br></div><br><br>
@@ -122,30 +122,32 @@ sub createNew {
 
   <form action="index.cgi" method="post">
   <input type="hidden" name="act" value="$tempVar">
-  <input type="hidden" name="id" value="$sessionID"><br>
-
-
+  <input type="hidden" name="id" value="$sessionID">
+  <br>
+  <br>
   <table>
-  <tr><td><b>Add a Task To the List:</b></td><br>
+  <tr><td><b>Add a Task To the List:</b></td>
   
-  <td><select name=\"Priority\" maxlength="60" style="width:146px; border:1px solid #999999" /> 
+  <td><select name="Priority" style="width:146px; border:1px solid #999999" > 
   <option value="0">High </option>
   <option value="5">Medium </option>
   <option value="10">Lowest
   </option></select>
   
-  <input id="Title" placeholder="Title" name="Title" type="text" maxlength="60" style="width:146px; border:1px solid #999999" />
-  <input id="ShortDescription" placeholder="ShortDescription" name="ShortDescription" type="text" maxlength="200" style="width:146px; border:1px solid #999999" /><br>
-  <input id="Date" placeholder="YYYY/MM/DD" name="Date" type="text" maxlength="60" style="width:146px; border:1px solid #999999" />
-  <input id="Dueby" placeholder="YYYY/MM/DD" name="DueBy" type="text" maxlength="60" style="width:146px; border:1px solid #999999" />
-  <input id="ThingsToDo" placeholder="ThingsToDo" name="ThingsToDo" type="text" maxlength="200" style="width:146px; border:1px solid #999999" />
-  
+  <input id="Title" placeholder="Title" name="Title" type="text" maxlength="60" style="width:146px; border:1px solid #999999" >
+  <input id="ShortDescription" placeholder="ShortDescription" name="ShortDescription" type="text" maxlength="200" style="width:146px; border:1px solid #999999" >
+  <br>
+  <input id="Date" placeholder="YYYY/MM/DD" name="Date" type="text" maxlength="60" style="width:146px; border:1px solid #999999" >
+  <input id="Dueby" placeholder="YYYY/MM/DD" name="DueBy" type="text" maxlength="60" style="width:146px; border:1px solid #999999" >
+  <input id="ThingsToDo" placeholder="ThingsToDo" name="ThingsToDo" type="text" maxlength="200" style="width:146px; border:1px solid #999999" >
+  </td></tr></table>
  
 
-  <tr><td colspan="2"><input type="submit" value="Confirm and Save"></td></tr><br><br> 
-   </td></tr></table><br>
-  </div></form></body></html>
-  
+  <input type="submit" value="Confirm and Save">
+  <br><br><br>
+  </form>
+  </div>
+ 
 createNew
 return
 }
@@ -159,31 +161,32 @@ sub editList {
   
   print <<editList;
   $commonHead
-  <body>
-  <div id="main">
+ 
+  <div class="main">
   <h3>The Editor</h3>
     
   <p>Make Your Changes Here</p>
    
-  <td><select name=\"Priority\" maxlength="60" style="width:146px; border:1px solid #999999" /> 
+  <select name="Priority" style="width:146px; border:1px solid #999999" > 
   <option value="0">High
   <option value="5">Medium
   <option value="10">Lowest
   </option></select>
-  <input id="Title" name="Title" type="text" maxlength="60" style="width:146px; border:1px solid #999999" />
-  <input id="ShortDescription" name="ShortDescription" type="text" maxlength="200" style="width:146px; border:1px solid #999999" /><br>
-  
-  <input id="Date" name="Date" type="text" maxlength="60" style="width:146px; border:1px solid #999999" />
-  <input id="Dueby" name="DueBy" type="text" maxlength="60" style="width:146px; border:1px solid #999999" />
-  <input id="ThingsToDo" name="ThingsToDo" type="text" maxlength="200" style="width:146px; border:1px solid #999999" />
-  </table><br>
+  <input id="Title" name="Title" type="text" maxlength="60" style="width:146px; border:1px solid #999999" >
+  <input id="ShortDescription" name="ShortDescription" type="text" maxlength="200" style="width:146px; border:1px solid #999999" >
+  <br>
+  <input id="Date" name="Date" type="text" maxlength="60" style="width:146px; border:1px solid #999999" >
+  <input id="Dueby" name="DueBy" type="text" maxlength="60" style="width:146px; border:1px solid #999999" >
+  <input id="ThingsToDo" name="ThingsToDo" type="text" maxlength="200" style="width:146px; border:1px solid #999999" >
+  <br>
    
-  <input type=\"checkbox\" name=\"delete\" value=\"delete\">
-  <tr><td colspan=\"2\"><input type=\"submit\" value=\"Delete Selected\"></td></tr><br>
-  <tr><td colspan=\"2\"><input type=\"submit\" value=\"Save Changes\"></td></tr><br><br>
+  <input type="checkbox" name="delete" value="delete">
+  <input type="submit" value="Delete Selected">
+  <br>
+  <input type="submit" value="Save Changes">
+  <br><br>
   </div>
 
-</body></html>
 
 editList
 }
@@ -296,15 +299,15 @@ $commonHead
 Please login:
 <form action="" method="post">
 <input type="hidden" name="act" value="$doing">
+
 <table>
 <tr><td>Username:</td><td><input name="username" type="text"></td></tr>
 <tr><td>Password:</td><td><input name="password" type="password"></td></tr>
 <tr><td colspan="2"><input type="submit" value="login now"></td></tr>
 </table>
 </form><br>
-</div>
-</body>
-</html>
+</div></body></html>
+
 loginFail_html
   return $html;
 }
@@ -364,7 +367,6 @@ sub viewList {
   my $html=<<viewList_html1;
   
 $commonHead
-<body>
 
 <div class="main">
 
@@ -403,25 +405,26 @@ sub loginDialog {
   my $html=<<loginDialog_html;
 $commonHead
 
-
 <div class="main">
 
 <h1>Welcome To TreeBeard Forest</h1>
 
 Please login:<br><i><small>or <a href="?act=">sign up</a></small></i>
-<form action="" method="post"><br>
-
+<form action=" " method="post">
+<br>
 <input type="hidden" name="act" value="$doing">
-<table style="float:center">
+
 <table>
 <tr><td>Username:</td><td><input name="username" type="text"></td></tr>
 <tr><td>Password:</td><td><input name="password" type="password"></td></tr>
 <tr><td colspan="2"><input type="submit" value="Login Now"></td></tr>
-</table><br>
+</table>
+<br>
 
+</form>
 </div>
+</body></html>
 
-</form></body></html>
 loginDialog_html
   return $html;
 }
