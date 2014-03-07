@@ -20,15 +20,10 @@ Logout
 SignUp
 =cut
 
-
-
 my $cgi= new CGI;
-
 my $myuser="it.kevind";
 # my character seperator
 my $sc="::";
-
-
 
 my $shortdescription=$cgi->param('ShortDescription'); 
 my $date=$cgi->param('Date'); 
@@ -55,8 +50,6 @@ my ($saveFile, $saveInfo);
 
 $saveFile="/home/$myuser/public_html/cgi-bin/toDoLister/ListerLog.txt";
 
-
-
 use constant msg_checkLogin=>101;
 use constant msg_viewList=>102;
 use constant msg_createNew=>103;
@@ -66,6 +59,7 @@ use constant msg_signUp => 106;
 use constant msg_editThing=>107;
 use constant msg_deleteFromList=>108;
 use constant msg_saveItem => 109;
+use constant msg_saveEdit => 110;
 
 use constant salt => 'ko';
 
@@ -99,7 +93,7 @@ sub initVars {
   <li><a href="http://treebeard.ie/webmail">Webmail</a></li>
   <li><a href="http://treebeard.ie/projectsLister">Projects Lister</a>
   <li><a href="http://treebeard.ie">Treebeard</a></li>
-  <li><a href="http://treebeard.fachtnaroe.net/~$myuser/cgi-bin/toDoLister/index.cgi">ToDo List 20 line 105</a></li>
+  <li><a href="http://treebeard.fachtnaroe.net/~$myuser/cgi-bin/toDoLister/index.cgi">ToDo List</a></li>
   </ul>
   
 </div><br></div><br><br>
@@ -136,9 +130,9 @@ sub createNew {
   
   <input id="Title" placeholder="Title" name="Title" type="text" maxlength="60" style="width:146px; border:1px solid #999999" >
   <input id="ShortDescription" placeholder="ShortDescription" name="ShortDescription" type="text" maxlength="200" style="width:146px; border:1px solid #999999" >
-  <br>
-  <input id="Date" placeholder="YYYY/MM/DD" name="Date" type="text" maxlength="60" style="width:146px; border:1px solid #999999" >
-  <input id="Dueby" placeholder="YYYY/MM/DD" name="DueBy" type="text" maxlength="60" style="width:146px; border:1px solid #999999" >
+  
+  <input id="Date" placeholder="Date YYYY/MM/DD" name="Date" type="text" maxlength="60" style="width:146px; border:1px solid #999999" >
+  <input id="Dueby" placeholder="Dueby YYYY/MM/DD" name="DueBy" type="text" maxlength="60" style="width:146px; border:1px solid #999999" >
   <input id="ThingsToDo" placeholder="ThingsToDo" name="ThingsToDo" type="text" maxlength="200" style="width:146px; border:1px solid #999999" >
   </td></tr></table>
  
@@ -152,45 +146,79 @@ createNew
 return
 }
 
-
 # this lets you edit the todolister
-sub editList {
+sub editThing {
 # Expects: 
 # Returns: 
   my $msg_editThing=msg_editThing;
+  my $thing=getRecordNumber();
+  my ($thingKey, $user, $title, $desc, $priority, $date, $due, $detail)=getRecord($thing);
+  my ($high, $med, $low);
   
-  print <<editList;
+  if ($priority==0) {
+    $high="<option value=\"0\" selected >High</option>";
+  }
+  else {
+    $high="<option value=\"0\">High</option>";
+  }
+ 
+  if (($priority != 0) && ($priority != 10) ) {
+    $med="<option value=\"5\" selected >Medium</option>";
+  }
+  else {
+    $med="<option value=\"5\">Medium</option>";
+  }
+  if ($priority==10) {
+    $low="<option value=\"10\" selected >Low</option>";
+  }
+  else {
+    $low="<option value=\"10\">Low</option>";
+  }
+  my $doing=msg_saveEdit;
+  print <<editThing;
   $commonHead
  
   <div class="main">
   <h3>The Editor</h3>
-    
-  <p>Make Your Changes Here</p>
-   
+  <p>Make Your Changes Here</p> 
+  <form action=" " method="post">
+  <br>
+  <input type="hidden" name="act" value="$doing">
+  <input type="hidden" name="thing" value="$thing">
   <select name="Priority" style="width:146px; border:1px solid #999999" > 
-  <option value="0">High
-  <option value="5">Medium
-  <option value="10">Lowest
-  </option></select>
-  <input id="Title" name="Title" type="text" maxlength="60" style="width:146px; border:1px solid #999999" >
-  <input id="ShortDescription" name="ShortDescription" type="text" maxlength="200" style="width:146px; border:1px solid #999999" >
+  $high$med$low
+  </select>
+  <input id="Title" name="Title" value="$title" type="text" maxlength="60" style="width:146px; border:1px solid #999999" >
+  <input id="ShortDescription" value="$desc" name="ShortDescription" type="text" maxlength="200" style="width:146px; border:1px solid #999999" >
+  <input id="Date" name="Date" value="$date" type="text" maxlength="60" style="width:146px; border:1px solid #999999" >
+  <input id="Dueby" name="DueBy" value="$due" type="text" maxlength="60" style="width:146px; border:1px solid #999999" >
+  <input id="ThingsToDo" name="ThingsToDo" value="$detail" type="text" maxlength="200" style="width:146px; border:1px solid #999999" >
   <br>
-  <input id="Date" name="Date" type="text" maxlength="60" style="width:146px; border:1px solid #999999" >
-  <input id="Dueby" name="DueBy" type="text" maxlength="60" style="width:146px; border:1px solid #999999" >
-  <input id="ThingsToDo" name="ThingsToDo" type="text" maxlength="200" style="width:146px; border:1px solid #999999" >
-  <br>
-   
-  <input type="checkbox" name="delete" value="delete">
-  <input type="submit" value="Delete Selected">
   <br>
   <input type="submit" value="Save Changes">
+  </form>
   <br><br>
   </div>
 
 
-editList
+editThing
+
 }
 
+sub saveEdit {
+  my $recordNum=getRecordNumber();
+  my ($priority)=$cgi->param('Priority');
+  my ($title)=$cgi->param('Title');
+  my ($desc)=$cgi->param('ShortDescription');
+  my ($date)=$cgi->param('Date');
+  my ($due)=$cgi->param('DueBy');
+  my ($detail)=$cgi->param('ThingsToDo');
+  my ($q, $qh);
+  $q="UPDATE ThingsToDo SET Priority=?, ShortDescription=?, Title=?, Date=?, DueBy=?, ThingToDo=? WHERE thingKey=?;";
+  $qh = $dbh->prepare($q);
+  my $result= $qh->execute($priority, $desc, $title, $date, $due, $detail, $recordNum);
+
+}
 
 sub newConnection {
 # Expects: 
@@ -205,7 +233,6 @@ sub newConnection {
   }
 }
 
-
 sub getSessionCode {
 # Expects: 
 # Returns: 
@@ -214,13 +241,28 @@ sub getSessionCode {
   return $sessionCode;
 }
 
-
 sub getAction {
 # Expects: 
 # Returns: 
   $action=$cgi->param('act'); 
 }
 
+sub getRecordNumber {
+# Expects: 
+# Returns: 
+  my $thing=$cgi->param('thing'); 
+  return $thing;
+}
+
+sub getRecord {
+  my $recordNum=shift;
+  my ($q, $qh, @record);
+  $q="SELECT * FROM ThingsToDo WHERE thingKey=?;";
+  $qh = $dbh->prepare($q);
+  $qh->execute($recordNum);
+  @record = $qh->fetchrow_array();
+  return @record;
+}
 
 sub passwordOK {
   my $user=$_[0];
@@ -239,7 +281,6 @@ sub passwordOK {
   }
 }
 
-
 sub getUserNum {
   my ($q, $qh);
   my $user=$_[0];
@@ -250,7 +291,6 @@ sub getUserNum {
   return $usercode;
 }
 
-
 sub getUserName {
   my ($q, $qh);
   my $session=$_[0];
@@ -260,7 +300,6 @@ sub getUserName {
   my $userName=$qh->fetchrow();
   return $userName;
 }
-
 
 sub checkLogin {
 # Expects: 
@@ -276,7 +315,6 @@ sub checkLogin {
   }
 }
 
-
 sub loginOK {
 # Expects: 
 # Returns: 
@@ -284,7 +322,6 @@ sub loginOK {
   $sessionCode=getNewSession($activeUser);
   return viewList();
 }
-
 
 sub loginFail {
 # Expects: 
@@ -312,7 +349,6 @@ loginFail_html
   return $html;
 }
 
-
 sub logOut {
   my ($q, $qh);
   my $msg_logOut=msg_logOut;
@@ -322,7 +358,6 @@ sub logOut {
   my $result=$qh->execute();
   if ($result == 1) {
   
-
   print "<!DOCTYPE html><html><head><title>Treebeard ToDo List</title>";
   print "<link rel=\"stylesheet\" type=\"text/css\" href=\"todo.css\">";
   print "</head>"; 
@@ -354,7 +389,6 @@ sub logOut {
   }
 }
 
-
 sub viewList {
 # Expects: 
 # Returns: 
@@ -371,7 +405,7 @@ $commonHead
 <div class="main">
 
 <h3>TreeBeard ToDo List for user $activeUser</h3>
-
+<input type="submit" value="Delete Selected">
 viewList_html1
 # this is for the drop down priority it lets a priority number passed in shows up
   foreach (0..10) {  # REPLACE!
@@ -396,7 +430,6 @@ viewList_html1
 viewList_html2
   return $html;
 }
-
 
 sub loginDialog {
 # Expects: 
@@ -429,7 +462,6 @@ loginDialog_html
   return $html;
 }
 
-
 sub tooManySessions {
 # Expects: 
 # Returns:
@@ -448,7 +480,6 @@ tooManySessions_html
   return $html;
 }
 
-
 sub sessionCount {
   my ($q, $qh);
   $q="SELECT COUNT(*) FROM Sessions;";
@@ -457,7 +488,6 @@ sub sessionCount {
   my $count=$qh->fetchrow();
   return $count;
 }  
-
 
 sub getNewSession {
 # this is a new session, get an ID if possible
@@ -476,13 +506,11 @@ sub getNewSession {
   }
 }
 
-
 sub makeSessionCode {
   my $tempCode = new String::Random;
   my $thing = $tempCode->randpattern("cnnn");
   return $thing;
 }
-
 
 sub checkSession {
 # does this session id exist
@@ -498,7 +526,6 @@ sub checkSession {
   }
 }
 
-
 sub stampSession {
 # timestamp this session to avoid expiry
   my ($q, $qh);
@@ -507,7 +534,6 @@ sub stampSession {
   $qh=$dbh->prepare($q);
   $qh->execute();
 }
-
 
 sub deleteFromList {
 # Expects: 
@@ -519,13 +545,11 @@ sub deleteFromList {
 #deleteFromList 
 }
 
-
 sub printHashPass {
   my ($pass)="pass";
   $pass=crypt $pass, salt;
   print "[$pass]\n";
 }
-
 
 # this gets information from the ThingsToDo folder in the SQL database
 sub getList {
@@ -549,12 +573,14 @@ sub getList {
     $html .= "<td>$thing[4]</td>";
     $html .= "<td>$thing[5]</td>";
     $html .= "<td>$thing[6]</td>";
-    $html .= "<td>$thing[7]</td></tr>";
+    $html .= "<td>$thing[7]</td>";
+    $html .= "<td><input type=\"checkbox\" name=\"delete\" value=\"delete\"></td></tr>";
+    
   }
   $html .= "</table>";
+ 
   return $html;
 }
-
 
 # for saving things into the ThingsToDo Folder in the treebeard sql database
 sub saveNewItem {
@@ -577,7 +603,6 @@ sub saveNewItem {
   print viewList();
 }
 
-
 # opening my personal database file which is called ListerLog.txt
   open FILE, ">> $saveFile"; 
   # puting all the new enterd information from the input fields into that file
@@ -586,9 +611,9 @@ sub saveNewItem {
   print FILE "$saveInfo\n";
   # closing the file
   close FILE;
-  
 
 # variables
+
 sub main {
   initVars();
   contentType();
@@ -607,8 +632,11 @@ sub main {
     createNew();
   }
   elsif ($action == msg_editThing) {
-    editList();
+    editThing();
   }
+  elsif ($action == msg_saveEdit) {
+    saveEdit();
+  }  
   elsif ($action == msg_deleteFromList) {
     msg_deleteFromList();
   }
@@ -623,4 +651,3 @@ sub main {
   }
 }
 main();
-
